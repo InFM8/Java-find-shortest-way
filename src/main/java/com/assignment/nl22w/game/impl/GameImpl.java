@@ -6,62 +6,44 @@ import org.springframework.core.io.*;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Component
 @Slf4j
 public class GameImpl implements Game {
+
     @Override
     public int escapeFromTheWoods(Resource resource) throws IOException {
-        Scanner sc = null;
-        BufferedReader reader = null;
-
-        int col = 0, row = 0, result = 0;
-        try (BufferedReader reader1 = new BufferedReader(new FileReader(resource.getFile()))) {
-            while (reader1.readLine() != null) {
-                col++;
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(resource.getFile()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                content.append(line).append("\n");
             }
         }
 
-        try (InputStream inputStream = resource.getInputStream()) {
-            String file = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-
-            reader = new BufferedReader(new FileReader(resource.getFile()));
-            row = reader.readLine().length();
-
-            if (col < 5 || col > 11000 || row < 5 || row > 11000) {
-                return result;
-            }
-
-            sc = new Scanner(file);
-            while (sc.hasNext()) {
-                char[][] grid = readMap(sc, row, col);
-                result = findShortestExit(grid);
-            }
-            return result;
-
-        } catch (IOException e) {
-            return result;
-        } finally {
-            if (sc != null) sc.close();
-            if (reader != null) reader.close();
+        Scanner sc = new Scanner(content.toString());
+        int rows = 0, cols = 0;
+        while (sc.hasNext()) {
+            String line = sc.nextLine();
+            rows++;
+            cols = Math.max(cols, line.length());
         }
-    }
 
-    public static char[][] readMap(Scanner scanner, int col, int row) {
-        char[][] grid = new char[row][col];
-        for (int i = 0; i < row; i++) {
-            String l = scanner.nextLine();
-            for (int j = 0; j < col; j++) {
-                try {
-                    grid[i][j] = l.charAt(j);
-                }catch (Exception e) {
-                    return grid;
+        sc.reset();
+        sc = new Scanner(content.toString());
+        char[][] grid = new char[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            String line = sc.nextLine();
+            for (int j = 0; j < cols; j++) {
+                if (j < line.length()) {
+                    grid[i][j] = line.charAt(j);
+                } else {
+                    grid[i][j] = ' ';
                 }
             }
         }
-        return grid;
+        return findShortestExit(grid);
     }
 
     private static int findShortestExit(char[][] grid) {
@@ -140,10 +122,6 @@ public class GameImpl implements Game {
         return 0;
     }
 
-    /**
-     * @return false if grid[x][y] == '1'
-     * @return true if grid[x][y] == ' '
-     */
     private static boolean isValidWay(int x, int y, char[][] grid, boolean[][] visited) {
         if (x >= 0 && y >= 0 && x < grid.length && y < grid[0].length
                 && grid[x][y] != '1' && visited[x][y] == false) {

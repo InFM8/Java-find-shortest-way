@@ -30,16 +30,16 @@ Escape from the woods is a task that finds the fastest way out of a forest and r
 * If the file is corrupted or there is no exit, the task should return 0.
 * Java 8 or later
 
-### Usage
+## Usage
 
-// Create a new instance of the GameImpl class
-GameImpl gameImpl = new GameImpl();
+* // Create a new instance of the GameImpl class
+* GameImpl gameImpl = new GameImpl();
 
-// Input a map file as a ClassPathResource
-ClassPathResource map1 = new ClassPathResource("map1.txt");
+* // Input a map file as a ClassPathResource
+* ClassPathResource map1 = new ClassPathResource("map1.txt");
 
-// Run the escapeFromTheWoods method and store the result in a variable
-int steps = gameImpl.escapeFromTheWoods(map1);
+* // Run the escapeFromTheWoods method and store the result in a variable
+* int steps = gameImpl.escapeFromTheWoods(map1);
 
-// Print the number of steps taken to find the exit
-System.out.println("Steps taken to find the exit: " + steps);
+* // Print the number of steps taken to find the exit
+* System.out.println("Steps taken to find the exit: " + steps);

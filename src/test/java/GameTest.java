@@ -21,13 +21,17 @@ public class GameTest {
         findExit(0, "wrong-map.txt");
         findExit(0, "map9.txt");
         findExit(0, "map10.txt");
+        findExit(257, "map11.txt");
+        findExit(0, "map12.txt");
+        findExit(0, "map13.txt");
+        findExit(0, "map14.txt");
     }
 
-    public void findExit(int expected, String map) throws IOException {
+    public void findExit(int expectedOutput, String map) throws IOException {
         ClassPathResource map1 = new ClassPathResource(map);
         GameImpl gameImpl = new GameImpl();
         int actualResult = gameImpl.escapeFromTheWoods(map1);
 
-        Assertions.assertEquals(expected, actualResult);
+        Assertions.assertEquals(expectedOutput, actualResult);
     }
 }

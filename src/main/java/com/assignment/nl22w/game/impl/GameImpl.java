@@ -11,7 +11,6 @@ import java.util.*;
 @Component
 @Slf4j
 public class GameImpl implements Game {
-
     @Override
     public int escapeFromTheWoods(Resource resource) throws IOException {
         StringBuilder content = new StringBuilder();
@@ -47,87 +46,57 @@ public class GameImpl implements Game {
     }
 
     private static int findShortestExit(char[][] grid) {
-        ForestMap map = new ForestMap(0, 0, 0);
-        char northBorder, southBorder, westBorder, eastBorder;
-
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[i].length; j++) {
-
-                if (grid[i][j] == 'X') { // Find X
-                    map.row = i;
-                    map.col = j;
-
-                    for (int k = 0; k < grid[i].length; k++) { // Find destinations from Rows
-                        northBorder = grid[0][k];
-                        if (northBorder == ' ' || northBorder == 'X') {
-                            grid[0][k] = 'd';
-                        }
-                        southBorder = grid[grid.length - 1][k];
-                        if (southBorder == ' ' || southBorder == 'X') {
-                            grid[grid.length - 1][k] = 'd';
-                        }
-                    }
-
-                    for (int k = 0; k < grid.length; k++) { // Find destinations from Columns
-                        eastBorder = grid[k][grid[j].length - 1];
-                        if (eastBorder == ' ' || eastBorder == 'X') {
-                            grid[k][grid[j].length - 1] = 'd';
-                        }
-
-                        westBorder = grid[k][0];
-                        if (westBorder == ' ' || westBorder == 'X') {
-                            grid[k][0] = 'd';
-                        }
-                    }
+                if (grid[i][j] != 'X' && grid[i][j] != ' ' && grid[i][j] != '1') {
+                    return 0;
                 }
             }
         }
 
-        Queue<ForestMap> queue = new LinkedList<>();
-        queue.add(new ForestMap(map.row, map.col, 0));
+        int startX = -1, startY = -1;
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+                if (grid[i][j] == 'X') {
+                    startX = i;
+                    startY = j;
+                    break;
+                }
+            }
+            if (startX != -1) break;
+        }
+        if (startX == -1) return 0;
 
+        for (int i = 0; i < grid[0].length; i++) {
+            if (grid[0][i] == ' ' || grid[0][i] == 'X') grid[0][i] = 'd';
+            if (grid[grid.length - 1][i] == ' ' || grid[grid.length - 1][i] == 'X') grid[grid.length - 1][i] = 'd';
+        }
+        for (int i = 0; i < grid.length; i++) {
+            if (grid[i][0] == ' ' || grid[i][0] == 'X') grid[i][0] = 'd';
+            if (grid[i][grid[i].length - 1] == ' ' || grid[i][grid[i].length - 1] == 'X') grid[i][grid[i].length - 1] = 'd';
+        }
+
+        // BFS
+        int[] xMoves = {1, -1, 0, 0};
+        int[] yMoves = {0, 0, 1, -1};
         boolean[][] visited = new boolean[grid.length][grid[0].length];
-        visited[map.row][map.col] = true;
-
-        while (queue.isEmpty() == false) {
-            ForestMap f = queue.remove();
-
-            if (grid[f.row][f.col] == 'd')
-                return f.dist;
-
-            // Moving up
-            if (isValidWay(f.row - 1, f.col, grid, visited)) {
-                queue.add(new ForestMap(f.row - 1, f.col, f.dist + 1));
-                visited[f.row - 1][f.col] = true;
-            }
-
-            // Moving down
-            if (isValidWay(f.row + 1, f.col, grid, visited)) {
-                queue.add(new ForestMap(f.row + 1, f.col, f.dist + 1));
-                visited[f.row + 1][f.col] = true;
-            }
-
-            // Moving left
-            if (isValidWay(f.row, f.col - 1, grid, visited)) {
-                queue.add(new ForestMap(f.row, f.col - 1, f.dist + 1));
-                visited[f.row][f.col - 1] = true;
-            }
-
-            // Moving right
-            if (isValidWay(f.row, f.col + 1, grid, visited)) {
-                queue.add(new ForestMap(f.row, f.col + 1, f.dist + 1));
-                visited[f.row][f.col + 1] = true;
+        visited[startX][startY] = true;
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[] {startX, startY, 0});
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int x = current[0], y = current[1], dist = current[2];
+            if (grid[x][y] == 'd') return dist;
+            for (int i = 0; i < 4; i++) {
+                int xNext = x + xMoves[i], yNext = y + yMoves[i];
+                if (xNext >= 0 && xNext < grid.length && yNext >= 0 && yNext < grid[0].length
+                        && grid[xNext][yNext] != '1' && !visited[xNext][yNext]) {
+                    visited[xNext][yNext] = true;
+                    queue.add(new int[] {xNext, yNext, dist + 1});
+                }
             }
         }
         return 0;
-    }
-
-    private static boolean isValidWay(int x, int y, char[][] grid, boolean[][] visited) {
-        if (x >= 0 && y >= 0 && x < grid.length && y < grid[0].length
-                && grid[x][y] != '1' && visited[x][y] == false) {
-            return true;
-        }
-        return false;
     }
 }
 
